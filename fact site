@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Факт дня 🧠</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    transition: 0.3s;
+}
+
+body.light {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+header {
+    padding: 25px;
+    text-align: center;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 42px;
+}
+
+header p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+button, input, select {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+button {
+    cursor: pointer;
+    background: #6366f1;
+    color: white;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: #8b5cf6;
+}
+
+input, select {
+    outline: none;
+    background: white;
+    color: #111827;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+.fact-of-day {
+    text-align: center;
+    padding: 35px;
+    margin-bottom: 30px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #1e293b, #312e81);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: appear 0.7s;
+}
+
+.light .fact-of-day {
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.fact-of-day h2 {
+    font-size: 28px;
+}
+
+.fact-text {
+    font-size: 21px;
+    line-height: 1.6;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    padding: 25px;
+    border-radius: 20px;
+    background: #1e293b;
+    transition: 0.3s;
+    animation: appear 0.6s;
+}
+
+.light .card {
+    background: white;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.category {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #6366f1;
+    font-size: 12px;
+}
+
+.like {
+    margin-top: 15px;
+    background: transparent;
+    border: 1px solid #6366f1;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    margin-top: 40px;
+    opacity: 0.7;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 32px;
+    }
+
+    .fact-of-day {
+        padding: 25px 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🧠 Факт дня</h1>
+    <p>Интересные факты, которые удивят тебя</p>
+</header>
+
+<div class="controls">
+    <input
+        type="text"
+        id="search"
+        placeholder="🔎 Найти факт..."
+        oninput="showFacts()"
+    >
+
+    <select id="category" onchange="showFacts()">
+        <option value="all">Все категории</option>
+        <option value="Космос">🌌 Космос</option>
+        <option value="Животные">🐾 Животные</option>
+        <option value="Человек">🧬 Человек</option>
+        <option value="Технологии">💻 Технологии</option>
+        <option value="История">🏛️ История</option>
+    </select>
+
+    <button onclick="randomFact()">🎲 Случайный факт</button>
+    <button onclick="toggleTheme()">🌙 Тема</button>
+</div>
+
+<div class="container">
+
+    <div class="fact-of-day">
+        <h2>🔥 Факт дня</h2>
+        <p class="fact-text" id="dailyFact"></p>
+        <button onclick="randomFact()">🎲 Ещё факт</button>
+    </div>
+
+    <div class="grid" id="facts"></div>
+
+</div>
+
+<footer>
+    © 2026 Факт дня | Узнавай что-то новое каждый день 🧠
+</footer>
+
+<script>
+
+const facts = [
+
+{
+text: "У осьминога три сердца, а его кровь имеет голубой цвет.",
+category: "Животные"
+},
+
+{
+text: "Свет от Солнца достигает Земли примерно за 8 минут и 20 секунд.",
+category: "Космос"
+},
+
+{
+text: "Человеческое сердце может сокращаться более 100 000 раз в сутки.",
+category: "Человек"
+},
+
+{
+text: "Первый компьютерный вирус появился ещё в 1980-х годах.",
+category: "Технологии"
+},
+
+{
+text: "В Древнем Египте кошки считались священными животными.",
+category: "История"
+},
+
+{
+text: "На Венере один день длится дольше, чем один год.",
+category: "Космос"
+},
+
+{
+text: "У акул скелет состоит не из костей, а из хрящей.",
+category: "Животные"
+},
+
+{
+text: "Человеческий мозг использует примерно 20% энергии организма.",
+category: "Человек"
+},
+
+{
+text: "Первый мобильный телефон весил больше одного килограмма.",
+category: "Технологии"
+},
+
+{
+text: "В Древнем Риме существовали дороги, которым более 2000 лет.",
+category: "История"
+},
+
+{
+text: "На Сатурне плотность настолько маленькая, что теоретически он мог бы плавать в воде.",
+category: "Космос"
+},
+
+{
+text: "У жирафа язык может достигать примерно 50 сантиметров.",
+category: "Животные"
+},
+
+{
+text: "Кожа является самым большим органом человеческого тела.",
+category: "Человек"
+},
+
+{
+text: "Первый сайт в интернете появился в 1991 году.",
+category: "Технологии"
+},
+
+{
+text: "Оксфордский университет старше империи ацтеков.",
+category: "История"
+},
+
+{
+text: "На Луне практически нет атмосферы, поэтому звук там не распространяется как на Земле.",
+category: "Космос"
+},
+
+{
+text: "Пчёлы могут узнавать человеческие лица.",
+category: "Животные"
+},
+
+{
+text: "В среднем человек моргает тысячи раз в день.",
+category: "Человек"
+},
+
+{
+text: "Первый YouTube-ролик был опубликован в 2005 году.",
+category: "Технологии"
+},
+
+{
+text: "Древние римляне использовали бетон, который оказался очень долговечным.",
+category: "История"
+},
+
+{
+text: "Юпитер — самая большая планета Солнечной системы.",
+category: "Космос"
+},
+
+{
+text: "У коров есть лучшие друзья, и они могут испытывать стресс при разлуке.",
+category: "Животные"
+},
+
+{
+text: "Человеческий организм содержит около 206 костей у взрослого человека.",
+category: "Человек"
+},
+
+{
+text: "Wi-Fi — это технология беспроводной передачи данных.",
+category: "Технологии"
+},
+
+{
+text: "Пирамиды Гизы были построены более 4000 лет назад.",
+category: "История"
+},
+
+{
+text: "На Марсе находится крупнейший вулкан Солнечной системы — Олимп.",
+category: "Космос"
+},
+
+{
+text: "Вороны способны запоминать лица людей.",
+category: "Животные"
+},
+
+{
+text: "Человеческий глаз способен различать миллионы оттенков цветов.",
+category: "Человек"
+},
+
+{
+text: "Первый компьютер занимал целую комнату.",
+category: "Технологии"
+},
+
+{
+text: "Некоторые древние цивилизации использовали солнечные часы.",
+category: "История"
+},
+
+{
+text: "Нейтронная звезда настолько плотная, что чайная ложка её вещества весила бы миллиарды тонн.",
+category: "Космос"
+},
+
+{
+text: "Слоны могут узнавать себя в зеркале.",
+category: "Животные"
+},
+
+{
+text: "Человек производит слюну в количестве примерно 1–1,5 литра в сутки.",
+category: "Человек"
+},
+
+{
+text: "Bluetooth назван в честь датского короля Харальда Синезубого.",
+category: "Технологии"
+},
+
+{
+text: "Клеопатра жила ближе по времени к высадке человека на Луну, чем к строительству пирамид Гизы.",
+category: "История"
+},
+
+{
+text: "В космосе нет обычного звука, потому что для его распространения нужна среда.",
+category: "Космос"
+},
+
+{
+text: "Дельфины спят, оставляя половину мозга активной.",
+category: "Животные"
+},
+
+{
+text: "Человеческий организм состоит примерно на 60% из воды.",
+category: "Человек"
+},
+
+{
+text: "QR-код был изобретён в Японии.",
+category: "Технологии"
+},
+
+{
+text: "Викинги использовали компасы задолго до появления современных навигационных систем.",
+category: "История"
+},
+
+{
+text: "На Меркурии температура на поверхности может сильно отличаться между днём и ночью.",
+category: "Космос"
+},
+
+{
+text: "У коал отпечатки пальцев похожи на человеческие.",
+category: "Животные"
+},
+
+{
+text: "Человеческий мозг содержит около 86 миллиардов нейронов.",
+category: "Человек"
+},
+
+{
+text: "Первый электронный компьютер общего назначения назывался ENIAC.",
+category: "Технологии"
+},
+
+{
+text: "В Древней Греции Олимпийские игры проводились в честь богов.",
+category: "История"
+},
+
+{
+text: "Солнечная система движется вокруг центра нашей галактики.",
+category: "Космос"
+},
+
+{
+text: "У бабочек вкусовые рецепторы находятся на лапках.",
+category: "Животные"
+},
+
+{
+text: "Кровь человека движется по огромной сети кровеносных сосудов.",
+category: "Человек"
+},
+
+{
+text: "Первый смартфон появился задолго до появления современных iPhone и Android.",
+category: "Технологии"
+}
+
+];
+
+function showFacts() {
+
+    const container = document.getElementById("facts");
+    const search = document.getElementById("search").value.toLowerCase();
+    const category = document.getElementById("category").value;
+
+    container.innerHTML = "";
+
+    facts.forEach((fact, index) => {
+
+        const matchesSearch =
+            fact.text.toLowerCase().includes(search);
+
+        const matchesCategory =
+            category === "all" ||
+            fact.category === category;
+
+        if (matchesSearch && matchesCategory) {
+
+            container.innerHTML += `
+                <div class="card">
+                    <span class="category">${fact.category}</span>
+                    <h3>💡 Интересный факт</h3>
+                    <p>${fact.text}</p>
+                    <button class="like"
+                        onclick="like(this)">
+                        ❤️ Мне нравится
+                    </button>
+                </div>
+            `;
+        }
+    });
+}
+
+function randomFact() {
+
+    const random =
+        facts[Math.floor(Math.random() * facts.length)];
+
+    document.getElementById("dailyFact").textContent =
+        random.text;
+}
+
+function like(button) {
+
+    if (button.textContent.includes("❤️")) {
+        button.textContent = "💖 Нравится!";
+    } else {
+        button.textContent = "❤️ Мне нравится";
+    }
+}
+
+function toggleTheme() {
+
+    document.body.classList.toggle("light");
+
+    if (document.body.classList.contains("light")) {
+        localStorage.setItem("theme", "light");
+    } else {
+        localStorage.setItem("theme", "dark");
+    }
+}
+
+if (localStorage.getItem("theme") === "light") {
+    document.body.classList.add("light");
+}
+
+randomFact();
+showFacts();
+
+</script>
+
+</body>
+</html>
+```
